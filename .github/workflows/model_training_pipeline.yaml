@@ -1,4 +1,4 @@
-name: model_training_pipeline
+name: citi_bike_model_training_pipeline
 
 on:
   schedule:
