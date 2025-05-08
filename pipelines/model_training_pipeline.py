@@ -4,7 +4,7 @@ from hsml.schema import Schema
 from sklearn.metrics import mean_absolute_error
 
 import src.config as config
-from src.data_utils import transform_ts_data_info_features_and_target
+from src.data_utils import transform_ts_data_into_features_and_target
 from src.inference import (
     fetch_days_data,
     get_hopsworks_project,
@@ -16,25 +16,24 @@ from src.pipeline_utils import get_pipeline
 print(f"Fetching data from group store ...")
 ts_data = fetch_days_data(180)
 
-print(f"Transforming to ts_data ...")
-
-features, targets = transform_ts_data_info_features_and_target(
+print(f"Transforming to features and target ...")
+features, targets, _ = transform_ts_data_into_features_and_target(
     ts_data, window_size=24 * 28, step_size=23
 )
+
 pipeline = get_pipeline()
 print(f"Training model ...")
-
 pipeline.fit(features, targets)
-
 predictions = pipeline.predict(features)
-
 test_mae = mean_absolute_error(targets, predictions)
+
 metric = load_metrics_from_registry()
 
 print(f"The new MAE is {test_mae:.4f}")
-print(f"The previous MAE is {metric['test_mae']:.4f}")
+if metric:
+    print(f"The previous MAE is {metric['test_mae']:.4f}")
 
-if test_mae < metric.get("test_mae"):
+if metric is None or test_mae < metric.get("test_mae", float("inf")):
     print(f"Registering new model")
     model_path = config.MODELS_DIR / "lgb_model.pkl"
     joblib.dump(pipeline, model_path)
@@ -46,7 +45,7 @@ if test_mae < metric.get("test_mae"):
     model_registry = project.get_model_registry()
 
     model = model_registry.sklearn.create_model(
-        name="taxi_demand_predictor_next_hour",
+        name=config.MODEL_NAME,
         metrics={"test_mae": test_mae},
         input_example=features.sample(),
         model_schema=model_schema,
