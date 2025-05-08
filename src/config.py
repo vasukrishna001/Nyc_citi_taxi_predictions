@@ -27,7 +27,7 @@ HOPSWORKS_API_KEY = os.getenv("HOPSWORKS_API_KEY")
 HOPSWORKS_PROJECT_NAME = os.getenv("HOPSWORKS_PROJECT_NAME")
 
 # Feature store configuration
-FEATURE_GROUP_NAME = "citi_bike_hourly_feature_group"
+FEATURE_GROUP_NAME = "citi_bike_hourly_features"
 FEATURE_GROUP_VERSION = 1
 
 FEATURE_VIEW_NAME = "citi_bike_hourly_feature_view"
