@@ -64,6 +64,7 @@ feature_group = feature_store.get_feature_group(
 logger.info("Feature group ready.")
 
 # Step 8: Insert data into the feature group
+ts_data["rides"] = ts_data["rides"].astype("int32")
 logger.info("Inserting data into the feature group...")
 feature_group.insert(ts_data, write_options={"wait_for_job": False})
 logger.info("Data insertion completed.")
